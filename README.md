@@ -1,2 +1,2 @@
 # hanoi-animation
-Android animation sample of solving hanoi tower quzzle
+Android animation sample of solving hanoi tower puzzle
