@@ -2,7 +2,6 @@ package com.po.sample.hanoi.robot;
 
 import android.support.v4.os.CancellationSignal;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class BrainTest {
             pillars.get(0).add(i);
         }
 
-        Brain.think(6, new Brain.Callback() {
+        Brain.solveHanoi(totalDisk, new Brain.Callback() {
             @Override
             public void onMoveDisk(int disk, int from, int to) {
                 ArrayList<Integer> pillarFrom = pillars.get(from);
@@ -42,8 +41,9 @@ public class BrainTest {
 
             @Override
             public void onFinished() {
-                assertTrue("pillar 1 should be empty", pillars.get(0).isEmpty());
-                assertEquals("pillar 3 should have " + totalDisk + " disks", totalDisk,  pillars.get(2).size());
+                assertTrue("source pillar should be empty", pillars.get(0).isEmpty());
+                assertTrue("spare pillar should be empty", pillars.get(1).isEmpty());
+                assertEquals("destination pillar should have " + totalDisk + " disks", totalDisk,  pillars.get(2).size());
             }
 
             @Override

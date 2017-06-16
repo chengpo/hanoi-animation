@@ -1,11 +1,10 @@
 package com.po.sample.hanoi.robot;
 
-
 import android.support.v4.os.CancellationSignal;
 import android.support.v4.os.OperationCanceledException;
 
 public final class Brain {
-    interface Callback {
+    public interface Callback {
         void onMoveDisk(int disk, int from, int to);
         void onFinished();
         void onCanceled();
@@ -14,10 +13,10 @@ public final class Brain {
     private final Callback callback;
     private final CancellationSignal cancel;
 
-    public static void think(int totalDisk, Callback callback, CancellationSignal cancel) {
+    public static void solveHanoi(int totalDisk, Callback callback, CancellationSignal cancel) {
         try {
             Brain brain = new Brain(callback, cancel);
-            brain.solveHanoi(totalDisk, totalDisk - 1, 0, 2, 1);
+            brain.moveHanoiTower(totalDisk, totalDisk - 1, 0, 2, 1);
 
             callback.onFinished();
         } catch (OperationCanceledException e) {
@@ -30,16 +29,16 @@ public final class Brain {
         this.cancel = cancel;
     }
 
-    private void solveHanoi(int totalDisk, int maxDiskId, int from, int to, int spare)
+    private void moveHanoiTower(int totalDisk, int maxDiskId, int from, int to, int spare)
             throws OperationCanceledException {
-        this.cancel.throwIfCanceled();
+        cancel.throwIfCanceled();
 
         if (totalDisk == 1) {
-            this.callback.onMoveDisk(maxDiskId, from, to);
+            callback.onMoveDisk(maxDiskId, from, to);
         } else {
-            solveHanoi(totalDisk - 1, maxDiskId - 1, from, spare, to);
-            this.callback.onMoveDisk(maxDiskId, from, to);
-            solveHanoi(totalDisk - 1, maxDiskId - 1, spare, to, from);
+            moveHanoiTower(totalDisk - 1, maxDiskId - 1, from, spare, to);
+            callback.onMoveDisk(maxDiskId, from, to);
+            moveHanoiTower(totalDisk - 1, maxDiskId - 1, spare, to, from);
         }
     }
 }
