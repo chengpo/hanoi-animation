@@ -13,14 +13,11 @@ import android.util.Log;
 import com.po.sample.hanoi.databinding.ActivityMainBinding;
 import com.po.sample.hanoi.robot.Brain;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int TOTAL_DISK = 10;
 
     private static final int MSG_APPEND_DISK_MOVEMENT = 1;
-    private static final int MSG_POP_DISK_MOVEMENT = 2;
 
     private ActivityMainBinding binding;
     private Handler mainUIHandler;
@@ -54,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     Message message = mainUIHandler.obtainMessage(MSG_APPEND_DISK_MOVEMENT, 0, 0, new DiskMovement(disk, from, to));
-                    mainUIHandler.sendMessage(message) ;
+                    mainUIHandler.sendMessageDelayed(message, (++step) * 1000) ;
                 }
 
                 @Override
@@ -100,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mainUIHandler = new Handler(getMainLooper()) {
-            private ArrayList<DiskMovement> movements = new ArrayList<>();
 
             @Override
             public void handleMessage(Message msg) {
@@ -108,38 +104,18 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (msg.what) {
                     case MSG_APPEND_DISK_MOVEMENT: {
-                        final int disk = msg.what;
-                        final int from  = msg.arg1;
-                        final int to = msg.arg2;
-
-                        Log.v(TAG, "Move disk " + disk + " from pillar " + from + " to pillar " + to);
-                        movements.add((DiskMovement) msg.obj);
-                        if (movements.size() == 1) {
-                            Message message = mainUIHandler.obtainMessage(MSG_POP_DISK_MOVEMENT);
-                            mainUIHandler.sendMessage(message);
-                        }
-                    }
-                    break;
-
-                    case MSG_POP_DISK_MOVEMENT: {
-                        if (movements.isEmpty()) {
-                            break;
-                        }
-
-                        DiskMovement movement = movements.remove(0);
-
+                        DiskMovement movement = (DiskMovement) msg.obj;
                         final int disk = movement.disk;
                         final int from  = movement.from;
                         final int to = movement.to;
 
+                        Log.v(TAG, "Move disk " + disk + " from pillar " + from + " to pillar " + to);
                         pillarLayouts[from].removeDisk(disk, new PillarLayout.Callback() {
                             @Override
                             public void onDiskMoved(DiskView diskView) {
                                 pillarLayouts[to].addDisk(diskView, new PillarLayout.Callback() {
                                     @Override
                                     public void onDiskMoved(DiskView disk) {
-                                        Message message = mainUIHandler.obtainMessage(MSG_POP_DISK_MOVEMENT);
-                                        mainUIHandler.sendMessage(message);
                                     }
                                 });
                             }
