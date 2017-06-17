@@ -1,5 +1,6 @@
 package com.po.sample.hanoi;
 
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -9,15 +10,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.po.sample.hanoi.databinding.ActivityMainBinding;
 import com.po.sample.hanoi.robot.Brain;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final int TOTAL_DISK = 10;
 
+    private ActivityMainBinding binding;
     private Handler mainUIHandler;
     private HanoiAsyncTask hanoiTask;
 
     private class HanoiAsyncTask extends AsyncTask<Integer, Void, Void> {
+        int step = 0;
+
         @Override
         protected Void doInBackground(Integer... params) {
             final int totalDisk = params[0];
@@ -31,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     Message message = mainUIHandler.obtainMessage(disk, from, to);
-                    mainUIHandler.sendMessage(message);
+                    mainUIHandler.sendMessageDelayed(message, (step++) * 1000) ;
                 }
 
                 @Override
@@ -65,7 +71,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.pillar1.loadDisk(TOTAL_DISK);
+
+        final PillarLayout pillarLayouts[] = {
+            binding.pillar1,
+            binding.pillar2,
+            binding.pillar3
+        };
 
         mainUIHandler = new Handler(getMainLooper()) {
             @Override
@@ -77,11 +91,19 @@ public class MainActivity extends AppCompatActivity {
                 int to = msg.arg2;
 
                 Log.v(TAG, "Move disk " + disk + " from pillar " + from + " to pillar " + to);
+
+                DiskView diskView = pillarLayouts[from].removeDisk(disk);
+                pillarLayouts[to].addDisk(diskView);
             }
         };
 
-        hanoiTask = new HanoiAsyncTask();
-        AsyncTaskCompat.executeParallel(hanoiTask, 6);
+        mainUIHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                hanoiTask = new HanoiAsyncTask();
+                AsyncTaskCompat.executeParallel(hanoiTask, TOTAL_DISK);
+            }
+        }, 3000);
     }
 
     @Override
