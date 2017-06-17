@@ -3,6 +3,9 @@ package com.po.sample.hanoi;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 public class PillarLayout extends LinearLayout {
@@ -24,6 +27,7 @@ public class PillarLayout extends LinearLayout {
     void loadDisk(int totalDisk) {
         float weight = 0.99f;
 
+
         for (int i = 0; i < totalDisk; i++) {
             DiskView diskView = new DiskView(getContext());
             diskView.setDiskId(i);
@@ -35,6 +39,14 @@ public class PillarLayout extends LinearLayout {
 
     void addDisk(DiskView diskView) {
         addView(diskView, 0);
+    }
+
+    @Override
+    public void addView(View child, int index) {
+        super.addView(child, index);
+
+        Animation drop = AnimationUtils.loadAnimation(getContext(), R.anim.disk_drop);
+        child.startAnimation(drop);
     }
 
     DiskView removeDisk(int diskId) {

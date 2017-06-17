@@ -42,11 +42,12 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinished() {
+                    Log.i(TAG, "Finish solving puzzle in " + step + " steps!");
                 }
 
                 @Override
                 public void onCanceled() {
-
+                    Log.i(TAG, "Cancel solving puzzle!");
                 }
             }, cancellationSignal);
 
