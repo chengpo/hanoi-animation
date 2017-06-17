@@ -9,6 +9,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 public class PillarLayout extends LinearLayout {
+    interface Callback {
+        void onDiskMoved(DiskView disk);
+    }
+
     public PillarLayout(Context context) {
         this(context, null);
     }
@@ -37,27 +41,64 @@ public class PillarLayout extends LinearLayout {
         }
     }
 
-    void addDisk(DiskView diskView) {
+    void addDisk(final DiskView diskView, final Callback callback) {
         addView(diskView, 0);
+
+        Animation drop = AnimationUtils.loadAnimation(getContext(), R.anim.disk_drop);
+        drop.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                callback.onDiskMoved(diskView);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        diskView.startAnimation(drop);
     }
 
     @Override
     public void addView(View child, int index) {
         super.addView(child, index);
-
-        Animation drop = AnimationUtils.loadAnimation(getContext(), R.anim.disk_drop);
-        child.startAnimation(drop);
     }
 
-    DiskView removeDisk(int diskId) {
+    void removeDisk(int diskId, final Callback callback) {
         for (int i = 0;  i < getChildCount(); i++) {
-            DiskView diskView = (DiskView)getChildAt(i);
+            final DiskView diskView = (DiskView)getChildAt(i);
             if (diskId == diskView.getDiskId()) {
+               /* Animation remove = AnimationUtils.loadAnimation(getContext(), R.anim.disk_move);
+                remove.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        removeView(diskView);
+
+                        callback.onDiskMoved(diskView);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+
+                diskView.startAnimation(remove);
+                */
                 removeView(diskView);
-                return diskView;
+                callback.onDiskMoved(diskView);
+                return;
             }
         }
-
-        return null;
     }
 }
