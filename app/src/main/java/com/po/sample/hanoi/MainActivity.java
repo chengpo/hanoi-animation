@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 hanoiTask = new HanoiAsyncTask();
                 AsyncTaskCompat.executeParallel(hanoiTask, TOTAL_DISK);
             }
-        }, 3000);
+        }, 5000);
     }
 
     @Override
