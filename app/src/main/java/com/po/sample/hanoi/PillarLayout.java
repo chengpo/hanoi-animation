@@ -3,7 +3,6 @@ package com.po.sample.hanoi;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -54,11 +53,6 @@ public class PillarLayout extends LinearLayout {
 
         Animation drop = AnimationUtils.loadAnimation(getContext(), R.anim.disk_drop);
         diskView.startAnimation(drop);
-    }
-
-    @Override
-    public void addView(View child, int index) {
-        super.addView(child, index);
     }
 
     void removeDisk(int diskId, boolean toRight, final Callback callback) {
