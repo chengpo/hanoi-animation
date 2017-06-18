@@ -17,23 +17,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int TOTAL_DISK = 10;
 
-    private static final int MSG_APPEND_DISK_MOVEMENT = 1;
-
     private ActivityMainBinding binding;
     private Handler mainUIHandler;
     private HanoiAsyncTask hanoiTask;
-
-    private static class DiskMovement {
-        int disk;
-        int from;
-        int to;
-
-        public DiskMovement(int disk, int from, int to) {
-            this.disk = disk;
-            this.from = from;
-            this.to = to;
-        }
-    }
 
     private class HanoiAsyncTask extends AsyncTask<Integer, Void, Void> {
         int step = 0;
@@ -50,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                         cancellationSignal.cancel();
                     }
 
-                    Message message = mainUIHandler.obtainMessage(MSG_APPEND_DISK_MOVEMENT, 0, 0, new DiskMovement(disk, from, to));
+                    Message message = mainUIHandler.obtainMessage(disk, from, to);
                     mainUIHandler.sendMessageDelayed(message, (++step) * 1000) ;
                 }
 
@@ -102,27 +88,23 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
 
-                switch (msg.what) {
-                    case MSG_APPEND_DISK_MOVEMENT: {
-                        DiskMovement movement = (DiskMovement) msg.obj;
-                        final int disk = movement.disk;
-                        final int from  = movement.from;
-                        final int to = movement.to;
+                final int disk = msg.what;
+                final int from  = msg.arg1;
+                final int to = msg.arg2;
 
-                        Log.v(TAG, "Move disk " + disk + " from pillar " + from + " to pillar " + to);
-                        pillarLayouts[from].removeDisk(disk, new PillarLayout.Callback() {
+                Log.v(TAG, "Move disk " + disk + " from pillar " + from + " to pillar " + to);
+
+                pillarLayouts[from].removeDisk(disk, from < to,  new PillarLayout.Callback() {
+                    @Override
+                    public void onDiskRemoved(final DiskView diskView) {
+                        pillarLayouts[to].post(new Runnable() {
                             @Override
-                            public void onDiskMoved(DiskView diskView) {
-                                pillarLayouts[to].addDisk(diskView, new PillarLayout.Callback() {
-                                    @Override
-                                    public void onDiskMoved(DiskView disk) {
-                                    }
-                                });
+                            public void run() {
+                                pillarLayouts[to].addDisk(diskView);
                             }
                         });
                     }
-                    break;
-                }
+                });
             }
         };
 
